@@ -1,0 +1,17 @@
+ARG DIST
+FROM ubuntu:${DIST} AS builder
+ARG DPDK_VER=master
+
+COPY scripts /scripts
+RUN /bin/bash /scripts/pre-build.ubuntu.sh
+RUN /bin/bash /scripts/build.dpdk.sh $DPDK_VER /dpdk
+
+FROM ubuntu:${DIST} AS prod
+ARG DPDK_PATH=/dpdk
+ARG BUILD_DATE
+LABEL org.opencontainers.image.authors="yerden.zhumabekov@gmail.com"
+LABEL org.opencontainers.image.created="$BUILD_DATE"
+COPY --from=builder /dpdk $DPDK_PATH
+
+# save DPDK root reference
+ENV DPDK_ROOT=$DPDK_PATH
