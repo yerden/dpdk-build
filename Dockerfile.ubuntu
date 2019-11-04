@@ -1,17 +1,30 @@
 ARG DIST
+
+#
+# Building stage
+#
 FROM ubuntu:${DIST} AS builder
 ARG DPDK_VER=master
 
+#
+# configure system, compile DPDK source and install to /dpdk
+#
 COPY scripts /scripts
 RUN /bin/bash /scripts/pre-build.ubuntu.sh
 RUN /bin/bash /scripts/build.dpdk.sh $DPDK_VER /dpdk
 
+#
+# Collecting stage
+#
 FROM ubuntu:${DIST} AS prod
-ARG DPDK_PATH=/dpdk
 ARG BUILD_DATE
 LABEL org.opencontainers.image.authors="yerden.zhumabekov@gmail.com"
 LABEL org.opencontainers.image.created="$BUILD_DATE"
-COPY --from=builder /dpdk $DPDK_PATH
+ENV PKG_CONFIG_PATH /usr/local/lib/x86_64-linux-gnu
 
-# save DPDK root reference
-ENV DPDK_ROOT=$DPDK_PATH
+#
+# install DPDK binaries to the system from previous stage
+# and reuse ld.so cache
+#
+COPY --from=builder /dpdk/ /
+RUN ["/bin/bash", "-c", "/sbin/ldconfig"]

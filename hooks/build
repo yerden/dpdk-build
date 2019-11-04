@@ -18,12 +18,9 @@ echo "tag: $DOCKER_TAG"
 echo "image_name: $IMAGE_NAME"
 echo "dockerfile: $DOCKERFILE_PATH"
 
-# TAG is needed for Dockerfile.runtime build
 docker build \
-	--build-arg TAG="$DIST-$DPDK_VER" \
 	--build-arg BUILD_DATE="$(date --rfc-3339='seconds')" \
 	--build-arg DIST="$DIST" \
-	--build-arg DPDK_PATH="$DPDK_PATH" \
 	--build-arg DPDK_VER="$DPDK_VER" \
 	-t "$IMAGE_NAME" \
 	-f "$DOCKERFILE_PATH" \

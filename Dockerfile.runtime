@@ -1,6 +1,0 @@
-ARG TAG
-FROM nedrey/dpdk-build:${TAG}
-RUN /bin/cp -r $DPDK_ROOT/* / && \
-    /bin/rm -fr $DPDK_ROOT && \
-    /bin/bash -c 'echo /usr/local/lib/x86_64-linux-gnu > /etc/ld.so.conf.d/dpdk.conf' && \
-    ldconfig
