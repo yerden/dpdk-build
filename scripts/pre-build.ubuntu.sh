@@ -18,7 +18,7 @@ PACKAGES="\
 	linux-headers-generic \
 "
 
-apt-get -y update && apt-get -y install $PACKAGES
+(apt-get -y update && apt-get -y install $PACKAGES) || exit 1
 
 #
 # container's uname reports host kernel,
