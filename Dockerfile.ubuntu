@@ -24,7 +24,8 @@ ENV PKG_CONFIG_PATH /usr/local/lib/x86_64-linux-gnu
 
 #
 # install DPDK binaries to the system from previous stage
-# and reuse ld.so cache
+# and recreate ld.so.cache
 #
-COPY --from=builder /dpdk/ /
-RUN ["/bin/bash", "-c", "/sbin/ldconfig"]
+COPY --from=builder /dpdk/usr/local/lib /usr/local/lib
+RUN /sbin/ldconfig
+COPY --from=builder /dpdk/lib/modules/ /lib/modules/
