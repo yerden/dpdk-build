@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# set default build variables
+DIST="latest"
+DPDK_VER="master"
+
+if [ "$DOCKER_TAG" != "latest" ]; then
+	DIST="$(echo $DOCKER_TAG | awk -F- '{print $1}')"
+	DPDK_VER="$(echo $DOCKER_TAG | awk -F- '{print $2}')"
+fi
+
+## get extension of Dockerfile
+# DOCKERFILENAME=$(basename -- $DOCKERFILE_PATH)
+# EXT="${DOCKERFILENAME##*.}"
+
+echo "Building from $DIST, DPDK version: $DPDK_VER"
+echo "tag: $DOCKER_TAG"
+echo "image_name: $IMAGE_NAME"
+echo "dockerfile: $DOCKERFILE_PATH"
+
+docker build \
+	--build-arg BUILD_DATE="$(date --rfc-3339='seconds')" \
+	--build-arg DIST="$DIST" \
+	--build-arg DPDK_VER="$DPDK_VER" \
+	-t "$IMAGE_NAME" \
+	-f "$DOCKERFILE_PATH" \
+	.
