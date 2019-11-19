@@ -1,27 +1,51 @@
 #!/bin/bash
 
-# set default build variables
-DIST="latest"
-DPDK_VER="master"
+WD=$(dirname $0)
 
-if [ "$DOCKER_TAG" != "latest" ]; then
-	DIST="$(echo $DOCKER_TAG | awk -F- '{print $1}')"
-	DPDK_VER="$(echo $DOCKER_TAG | awk -F- '{print $2}')"
-fi
+# parse DOCKER_TAG
+DIST=$(echo $DOCKER_TAG | awk \
+	'BEGIN{FS=OFS="-"}{NF=(NF>1?NF-1:NF); print}')
+DPDK_VER="$(echo $DOCKER_TAG | awk \
+	'BEGIN{FS=OFS="-"}{print $NF=="latest"?"master":$NF}')"
 
-## get extension of Dockerfile
-# DOCKERFILENAME=$(basename -- $DOCKERFILE_PATH)
-# EXT="${DOCKERFILENAME##*.}"
+# default OS image
+case $DIST in
+	centos*)
+		BASE=centos
+		;;
+	stretch*)
+		BASE=debian
+		;;
+	*)
+		BASE=ubuntu
+		;;
+esac
 
 echo "Building from $DIST, DPDK version: $DPDK_VER"
 echo "tag: $DOCKER_TAG"
 echo "image_name: $IMAGE_NAME"
 echo "dockerfile: $DOCKERFILE_PATH"
 
-docker build \
-	--build-arg BUILD_DATE="$(date --rfc-3339='seconds')" \
-	--build-arg DIST="$DIST" \
-	--build-arg DPDK_VER="$DPDK_VER" \
-	-t "$IMAGE_NAME" \
-	-f "$DOCKERFILE_PATH" \
-	.
+# build dpdk on base:dist
+docker run \
+	-v $PWD/:/workdir \
+	-w /workdir \
+	-u $UID \
+	--rm \
+	${BASE}:${DIST} \
+	"./scripts/pre-build.${BASE}.sh ${DIST} && \
+	./scripts/build.dpdk.sh $DPDK_VER ./build/dpdk.tar.gz"
+
+cat > build/Dockerfile <<EOF
+FROM ${BASE}:${DIST}
+LABEL org.opencontainers.image.authors="yerden.zhumabekov@gmail.com"
+LABEL org.opencontainers.image.created="$(date --rfc-3339='seconds')"
+ADD build/dpdk.tar.gz
+RUN ldconfig
+EOF
+
+# set default build variables
+
+## get extension of Dockerfile
+# DOCKERFILENAME=$(basename -- $DOCKERFILE_PATH)
+# EXT="${DOCKERFILENAME##*.}"
