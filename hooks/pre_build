@@ -25,22 +25,26 @@ echo "Building from $DIST, DPDK version: $DPDK_VER"
 echo "tag: $DOCKER_TAG"
 echo "image_name: $IMAGE_NAME"
 echo "dockerfile: $DOCKERFILE_PATH"
+echo "pwd: $PWD"
 
 # build dpdk on base:dist
-docker run \
+(docker run \
+	-e DOCKER_UID=$UID \
+	-e BASE=$BASE \
+	-e DIST=$DIST \
+	-e DPDK_VER=$DPDK_VER \
 	-v $PWD/:/workdir \
 	-w /workdir \
-	-u $UID \
 	--rm \
 	${BASE}:${DIST} \
-	"./scripts/pre-build.${BASE}.sh ${DIST} && \
-	./scripts/build.dpdk.sh $DPDK_VER ./build/dpdk.tar.gz"
+	/bin/bash -c "env && ./scripts/pre-build.${BASE}.sh && ./scripts/build.dpdk.sh ./build/dpdk.tar.gz"
+) || exit 1
 
 cat > build/Dockerfile <<EOF
 FROM ${BASE}:${DIST}
 LABEL org.opencontainers.image.authors="yerden.zhumabekov@gmail.com"
 LABEL org.opencontainers.image.created="$(date --rfc-3339='seconds')"
-ADD build/dpdk.tar.gz
+ADD build/dpdk.tar.gz /
 RUN ldconfig
 EOF
 
