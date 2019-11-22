@@ -39,9 +39,14 @@ python3 ./meson-installed.py $BUILD/meson-info/intro-installed.json | \
 done) | sort | uniq > $LD_CONF || exit 1
 echo "$LD_CONF" >> $FILELIST
 
+# list all files
+# *.so* is a special case because we need all symlinks too
 python3 ./meson-installed.py $BUILD/meson-info/intro-installed.json | \
 (while read file; do
-	echo $file
+	case $file in
+		*.so*) ls $(echo $file|awk 'BEGIN{OFS=FS="."}{while($NF!="so")NF--; print}')* ;;
+		    *) echo $file ;;
+	esac
 done) | sort | uniq >> $FILELIST || exit 1
 popd
 
