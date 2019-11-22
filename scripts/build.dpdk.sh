@@ -11,7 +11,7 @@ trap "rm -fr $BUILD $REPO $FILELIST" EXIT
 TARBALL=build/dpdk.tar.gz
 
 # take first ninja available
-NINJA=$(which ninja-build ninja|head -1)
+NINJA=$(type -p ninja-build ninja)
 
 # build
 (git clone http://dpdk.org/git/dpdk $REPO && \
