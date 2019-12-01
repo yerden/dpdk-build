@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LOG=`mktemp`
+trap "rm -f $LOG" EXIT
+
 PACKAGES="\
 	libz-dev \
 	pkg-config \
@@ -18,18 +21,24 @@ PACKAGES="\
 	linux-headers-generic \
 "
 
-(apt-get -y update && apt-get -y install $PACKAGES) || exit 1
+(apt-get -y update && apt-get -y install $PACKAGES > $LOG)
+if [ $? != 0 ]; then
+        cat $LOG
+        exit 1
+fi
+echo "Packages installed OK."
 
 #
 # container's uname reports host kernel,
 # we have to trick uname's users.
 #
-mv /bin/uname /bin/uname.orig
+mv /bin/uname /bin/uname.orig && \
 cat > /bin/uname << EOF
 #!/bin/bash
 if [ "\$1" != "-r" ]; then /bin/uname.orig \$@
 else ls -v /lib/modules/ |tail -1
 fi
 EOF
-chmod +x /bin/uname
+chmod +x /bin/uname || exit 1
 
+echo "uname replaced OK."
