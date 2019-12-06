@@ -68,6 +68,7 @@ popd
 case $TARBALL in
 	*.gz) TAR_OPTS="cfz" ;;
 	*.bz2) TAR_OPTS="cfj" ;;
+	*.xz) TAR_OPTS="cfJ" ;;
 	*) TAR_OPTS="cf" ;;
 esac
 tar $TAR_OPTS $TARBALL -P -T $FILELIST || exit 1
@@ -79,5 +80,8 @@ cat > build/Dockerfile <<EOF
 FROM ${BASE}:${DIST}
 LABEL org.opencontainers.image.authors="yerden.zhumabekov@gmail.com"
 LABEL org.opencontainers.image.created="$(date --rfc-3339='seconds')"
+LABEL org.opencontainers.image.kernel.version="$(uname -r)"
+LABEL org.opencontainers.image.dpdk.revision="$(cd $REPO; git rev-parse HEAD)"
+LABEL org.opencontainers.image.dpdk.abi="$(cd $REPO; cat ABI_VERSION)"
 ADD $TARBALL /
 EOF
