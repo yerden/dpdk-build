@@ -14,7 +14,7 @@ TARBALL=build/dpdk.tar.gz
 NINJA=$(type -p ninja-build ninja)
 
 # build
-(git clone http://dpdk.org/git/dpdk $REPO && \
+(git clone $DPDK_URL $REPO && \
 cd $REPO && \
 git checkout $DPDK_VER && \
 pip3 install meson && \
