@@ -8,8 +8,7 @@ DIST=$(echo $DOCKER_TAG | awk \
 DPDK_VER="$(echo $DOCKER_TAG | awk \
 	'BEGIN{FS=OFS="-"}{print $NF=="latest"?"master":$NF}')"
 
-
-DPDK_URL=http://dpdk.org/git/dpdk
+[ "x$DPDK_URL" = "x" ] && exit 1
 
 # default OS image
 case $DIST in
