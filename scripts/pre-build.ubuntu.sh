@@ -19,6 +19,7 @@ PACKAGES="\
 	libpcap-dev \
 	cmake \
 	linux-headers-generic \
+	apt-utils \
 "
 
 (apt-get -y update && apt-get -y install $PACKAGES > $LOG)
