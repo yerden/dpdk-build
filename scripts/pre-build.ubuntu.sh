@@ -4,6 +4,7 @@ LOG=`mktemp`
 trap "rm -f $LOG" EXIT
 
 DEBIAN_FRONTEND=noninteractive
+TZ=Asia/Almaty
 
 PACKAGES="\
 	libz-dev \
