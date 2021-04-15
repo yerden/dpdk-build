@@ -4,6 +4,8 @@ REPO=`mktemp -d`
 BUILD=`mktemp -d`
 FILELIST=`mktemp`
 LD_CONF=/etc/ld.so.conf.d/dpdk.conf
+DEBIAN_FRONTEND=noninteractive
+TZ=Asia/Almaty
 
 trap "rm -fr $BUILD $REPO $FILELIST" EXIT
 
