@@ -3,6 +3,8 @@
 LOG=`mktemp`
 trap "rm -f $LOG" EXIT
 
+DEBIAN_FRONTEND=noninteractive
+
 PACKAGES="\
 	libz-dev \
 	pkg-config \
@@ -19,10 +21,11 @@ PACKAGES="\
 	libpcap-dev \
 	cmake \
 	linux-headers-generic \
-	apt-utils \
 "
 
-(apt-get -y update && apt-get -y install $PACKAGES > $LOG)
+(apt-get -y update && \
+	apt-get install -y --no-install-recommends apt-utils && \
+	apt-get -y install $PACKAGES > $LOG)
 if [ $? != 0 ]; then
         cat $LOG
         exit 1
