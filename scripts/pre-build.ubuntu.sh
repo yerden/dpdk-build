@@ -3,8 +3,8 @@
 LOG=`mktemp`
 trap "rm -f $LOG" EXIT
 
-DEBIAN_FRONTEND=noninteractive
-TZ=Asia/Almaty
+export DEBIAN_FRONTEND=noninteractive
+export TZ=Asia/Almaty
 
 PACKAGES="\
 	libz-dev \
