@@ -20,7 +20,7 @@ TARBALL=build/dpdk.tar.gz
 cd $REPO && \
 git checkout $DPDK_VER && \
 pip3 install meson && \
-meson $BUILD && \
+meson -Dmachine=$MACHINE $BUILD && \
 cd $BUILD && \
 $NINJA && $NINJA install) || exit 1
 
