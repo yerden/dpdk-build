@@ -2,13 +2,21 @@
 
 WD=$(dirname $0)
 
-# parse DOCKER_TAG
-DIST=$(echo $DOCKER_TAG | awk \
-	'BEGIN{FS=OFS="-"}{NF=(NF>1?NF-1:NF); print}')
-DPDK_VER="$(echo $DOCKER_TAG | awk \
-	'BEGIN{FS=OFS="-"}{print $NF=="latest"?"master":$NF}')"
+function my_exit {
+	echo $1
+	exit 1
+}
 
-[ "x$DPDK_URL" = "x" ] && exit 1
+# parse DOCKER_TAG
+DIST=$(echo $DOCKER_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}')
+DPDK_VER=$(echo $DOCKER_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}')
+MACHINE=$(echo $DOCKER_TAG | awk 'BEGIN{FS=OFS="-"}{print $3}')
+
+[ "x$DIST" = "x"] && my_exit "No distribution specified"
+[ "x$DPDK_VER" = "x"] && my_exit "No DPDK version specified"
+[ "x$MACHINE" = "x"] && MACHINE="default"
+
+[ "x$DPDK_URL" = "x" ] && my_exit "Specify DPDK_URL"
 
 # default OS image
 case $DIST in
@@ -33,6 +41,7 @@ echo "pwd: $PWD"
 docker run \
 	-e DOCKER_UID=$UID \
 	-e BASE=$BASE \
+	-e MACHINE=$MACHINE \
 	-e DIST=$DIST \
 	-e DPDK_URL=$DPDK_URL \
 	-e DPDK_VER=$DPDK_VER \
