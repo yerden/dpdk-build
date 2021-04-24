@@ -21,8 +21,12 @@ cd $REPO && \
 git checkout $DPDK_VER && \
 pip3 install meson && \
 meson -Dmachine=$MACHINE $BUILD && \
-cd $BUILD && \
-$NINJA && $NINJA install) || exit 1
+pushd $BUILD && \
+meson configure && \
+popd && \
+pushd $BUILD && \
+$NINJA && $NINJA install && \
+popd ) || exit 1
 
 # configuration options before ninja build
 #meson configure -Dexamples= && \
