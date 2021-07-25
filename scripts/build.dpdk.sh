@@ -19,8 +19,8 @@ TARBALL=build/dpdk.tar.gz
 (git clone $DPDK_URL $REPO && \
 cd $REPO && \
 git checkout $DPDK_VER && \
-pip3 install meson && \
-meson -Dmachine=$MACHINE $BUILD && \
+pip3 install meson pyelftools && \
+meson -Dmachine=$MACHINE $MESON_OPTS $BUILD && \
 pushd $BUILD && \
 meson configure && \
 popd && \

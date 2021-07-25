@@ -44,6 +44,7 @@ docker run \
 	-e MACHINE=$MACHINE \
 	-e DIST=$DIST \
 	-e DPDK_URL=$DPDK_URL \
+	-e MESON_OPTS="$MESON_OPTS" \
 	-e DPDK_VER=$DPDK_VER \
 	-v $PWD/:/workdir \
 	-w /workdir \
