@@ -22,12 +22,20 @@ MACHINE=$(echo $DOCKER_TAG | awk 'BEGIN{FS=OFS="-"}{print $3}')
 case $DIST in
 	centos*)
 		BASE=centos
+		PREBUILD=${BASE}
+		;;
+	rockylinux*)
+		BASE=rockylinux/rockylinux
+		DIST=$(echo $DIST|sed "s/^rockylinux//g")
+		PREBUILD=centos8
 		;;
 	stretch*)
 		BASE=debian
+		PREBUILD=${BASE}
 		;;
 	*)
 		BASE=ubuntu
+		PREBUILD=${BASE}
 		;;
 esac
 
@@ -50,5 +58,5 @@ docker run \
 	-w /workdir \
 	--rm \
 	${BASE}:${DIST} \
-	/bin/bash -c "./scripts/pre-build.${BASE}.sh && \
+	/bin/bash -c "./scripts/pre-build.${PREBUILD}.sh && \
 	./scripts/build.dpdk.sh"
