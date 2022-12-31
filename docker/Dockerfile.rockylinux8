@@ -1,0 +1,46 @@
+# Building an image from:
+# rockylinux, golang, dpdk
+
+# Edit this to keep up with "go.mod" requirements.
+ARG GO_VER
+
+FROM golang:$GO_VER AS language
+
+FROM rockylinux:8 AS system
+
+ARG DPDK_VERSION="v21.11" \
+    DPDK_PATH="/dpdk" \
+    BUILD_PATH="/dpdk-build" \
+    MESON_OPTS \
+    PACKAGES="gcc glibc-devel zeromq-devel \
+        kernel-headers kernel-devel numactl-devel libibverbs-devel \
+        jansson-devel zlib-devel python3-pip libpcap-devel \
+        libmnl-devel ninja-build git make pkgconfig cmake jq" \
+    MYRI_SNF_RPM="https://support-cspi.s3.amazonaws.com/SNF/myri_snf-3.0.26.50935_0bf553213.rhel-3495.x86_64.rpm" \
+    GOLANGCI_LINT="https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh" \
+    GOLANGCI_LINT_VER="v1.50.1" \
+    GOCOVER_COBERTURA_VER="v1.2.0" \
+    GOPATH="/go"
+
+COPY --from=language /usr/local/go /usr/local/
+SHELL [ "/bin/bash", "-c" ]
+
+ENV PATH="$PATH:$GOPATH/bin:/usr/local/go/bin" \
+	PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig" \
+	LD_LIBRARY_PATH="/usr/local/lib64"
+
+RUN (dnf install -y epel-release dnf-plugins-core && \
+		dnf config-manager --set-enabled powertools && \
+		dnf install -y $PACKAGES && \
+		mkdir -p $DPDK_PATH && cd $DPDK_PATH && \
+		git clone http://dpdk.org/git/dpdk $DPDK_PATH && \
+		git checkout $DPDK_VERSION && \
+		pip3 install meson pyelftools && \
+		meson $MESON_OPTS $BUILD_PATH && \
+		cd $BUILD_PATH && \
+		ninja-build && ninja-build install && \
+		cd / && rm -fr $DPDK_PATH $BUILD_PATH && \
+		(curl -sSfL $GOLANGCI_LINT | sh -s -- -b $(go env GOPATH)/bin $GOLANGCI_LINT_VER) && \
+		go install github.com/boumenot/gocover-cobertura@$GOCOVER_COBERTURA_VER && \
+		rpm -Uvh $MYRI_SNF_RPM && \
+		echo 0)
