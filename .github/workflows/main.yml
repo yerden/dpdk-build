@@ -26,10 +26,10 @@ jobs:
           file: ./docker/Dockerfile.rockylinux8
           push: true
           build-args: |
-            DPDK_VERSION=v21.11
+            DPDK_VERSION=v22.11
             MESON_OPTS=-Dcpu_instruction_set=generic
-            GO_VER=1.19
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dpdk-rockylinux8:v21.11-go1.19-snf
+            GO_VER=1.21
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dpdk-rockylinux8:v22.11-go1.21-snf
       -
         name: Build and push RL9
         uses: docker/build-push-action@v3
