@@ -33,7 +33,8 @@ RUN (dnf install -y epel-release dnf-plugins-core && \
 		dnf config-manager --set-enabled powertools && \
 		dnf install -y $PACKAGES && \
 		mkdir -p $DPDK_PATH && cd $DPDK_PATH && \
-		git clone http://dpdk.org/git/dpdk $DPDK_PATH && \
+		(git clone http://dpdk.org/git/dpdk-stable $DPDK_PATH || \
+		git clone http://dpdk.org/git/dpdk $DPDK_PATH) && \
 		git checkout $DPDK_VERSION && \
 		pip3 install meson pyelftools && \
 		meson $MESON_OPTS $BUILD_PATH && \
